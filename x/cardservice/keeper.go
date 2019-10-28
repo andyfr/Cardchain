@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,7 +13,8 @@ import (
 
 // Keeper maintains the link to data storage and exposes getter/setter methods for the various parts of the state machine
 type Keeper struct {
-	coinKeeper bank.Keeper
+	accountKeeper auth.AccountKeeper
+	coinKeeper    bank.Keeper
 
 	cardsStoreKey    sdk.StoreKey // Unexposed key to access card store from sdk.Context
 	usersStoreKey    sdk.StoreKey // Unexposed key to access user store from sdk.Context
@@ -22,8 +24,9 @@ type Keeper struct {
 }
 
 // NewKeeper creates new instances of the cardservice Keeper
-func NewKeeper(coinKeeper bank.Keeper, cardsStoreKey sdk.StoreKey, usersStoreKey sdk.StoreKey, internalStoreKey sdk.StoreKey, cdc *codec.Codec) Keeper {
+func NewKeeper(accountKeeper auth.AccountKeeper, coinKeeper bank.Keeper, cardsStoreKey sdk.StoreKey, usersStoreKey sdk.StoreKey, internalStoreKey sdk.StoreKey, cdc *codec.Codec) Keeper {
 	return Keeper{
+		accountKeeper:    accountKeeper,
 		coinKeeper:       coinKeeper,
 		cardsStoreKey:    cardsStoreKey,
 		usersStoreKey:    usersStoreKey,
@@ -174,7 +177,7 @@ func (k Keeper) InitUser(ctx sdk.Context, address sdk.AccAddress) {
 
 	newUser := NewUser()
 	newUser.Alias = "newUser"
-	k.coinKeeper.AddCoins(ctx, address, sdk.Coins{sdk.NewInt64Coin("credits", 1000)})
+	k.coinKeeper.SetCoins(ctx, address, sdk.Coins{sdk.NewInt64Coin("credits", 1000)})
 
 	store.Set(address, k.cdc.MustMarshalBinaryBare(newUser))
 }
@@ -194,6 +197,15 @@ func (k Keeper) RegisterUser(ctx sdk.Context, newUser sdk.AccAddress) User {
 	if bz == nil {
 		fmt.Println("creating")
 		k.InitUser(ctx, newUser)
+
+		//acc := auth.NewBaseAccountWithAddress(newUser)
+
+		//acc := k.accountKeeper.NewAccountWithAddress(ctx, newUser)
+
+		//acc.SetCoins(acc.GetCoins())
+		//fmt.Println(acc)
+		//k.accountKeeper.SetAccount(ctx, acc)
+
 	} else {
 		fmt.Println(string(bz))
 	}

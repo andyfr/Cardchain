@@ -94,6 +94,7 @@ func NewCardserviceApp(logger log.Logger, db dbm.DB) *cardserviceApp {
 	// The cardserviceKeeper is the Keeper from the module for this tutorial
 	// It handles interactions with the namestore
 	app.csKeeper = cardservice.NewKeeper(
+		app.accountKeeper,
 		app.bankKeeper,
 		app.keyCScards,
 		app.keyCSusers,
