@@ -20,8 +20,8 @@ func NewHandler(keeper Keeper) sdk.Handler {
 			return handleMsgTransferCard(ctx, keeper, msg)
 		case MsgDonateToCard:
 			return handleMsgDonateToCard(ctx, keeper, msg)
-		case MsgCreateUser:
-			return handleMsgCreateUser(ctx, keeper, msg)
+		case MsgSaveUser:
+			return handleMsgSaveUser(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized cardservice Msg type in handler.go: %v", msg.Type())
 			return sdk.ErrUnknownRequest(errMsg).Result()
@@ -188,19 +188,9 @@ func handleMsgDonateToCard(ctx sdk.Context, keeper Keeper, msg MsgDonateToCard) 
 }
 
 // handle create user message
-func handleMsgCreateUser(ctx sdk.Context, keeper Keeper, msg MsgCreateUser) sdk.Result {
+func handleMsgSaveUser(ctx sdk.Context, keeper Keeper, msg MsgSaveUser) sdk.Result {
 
-	// check if Creator is valid
-	if true {
-
-	}
-
-	// check if user already exists
-	if keeper.GetUser(ctx, msg.NewUser).Alias == "" {
-		keeper.InitUser(ctx, msg.NewUser, msg.Alias)
-	} else {
-		keeper.SetUserName(ctx, msg.NewUser, msg.Alias)
-	}
+	keeper.SetUserName(ctx, msg.User, msg.Alias)
 
 	// this has been moved to keeper.InitUser, but maybe will be back here some day?
 	// give starting credits

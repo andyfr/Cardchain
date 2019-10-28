@@ -6,7 +6,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/spf13/cobra"
-
 	//"github.com/DecentralCardGame/Cardchain/x/cardservice"
 )
 
@@ -58,9 +57,38 @@ func GetCmdWhois(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			return nil
 
 			/*
-			var out cardservice.Whois
-			cdc.MustUnmarshalJSON(res, &out)
-			return cliCtx.PrintOutput(out)
+				var out cardservice.Whois
+				cdc.MustUnmarshalJSON(res, &out)
+				return cliCtx.PrintOutput(out)
+			*/
+		},
+	}
+}
+
+// GetCmdRegisterUser registers a user
+func GetCmdRegisterUser(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "register [address]",
+		Short: "register a user",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			address := args[0]
+
+			res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/register-user/%s", queryRoute, address), nil)
+			if err != nil {
+				fmt.Printf("could not resolve register - %s \n", string(address))
+				return nil
+			}
+
+			fmt.Println(string(res))
+
+			return nil
+
+			/*
+				var out cardservice.Whois
+				cdc.MustUnmarshalJSON(res, &out)
+				return cliCtx.PrintOutput(out)
 			*/
 		},
 	}
@@ -84,10 +112,10 @@ func GetCmdCardList(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			fmt.Println(string(res))
 
 			return nil
-/*
-			var out cardservice.QueryResCards
-			cdc.MustUnmarshalJSON(res, &out)
-			return cliCtx.PrintOutput(out)
+			/*
+				var out cardservice.QueryResCards
+				cdc.MustUnmarshalJSON(res, &out)
+				return cliCtx.PrintOutput(out)
 			*/
 		},
 	}
@@ -112,10 +140,10 @@ func GetCmdVotableCardList(queryRoute string, cdc *codec.Codec) *cobra.Command {
 			fmt.Println(string(res))
 
 			return nil
-/*
-			var out cardservice.QueryResCards
-			cdc.MustUnmarshalJSON(res, &out)
-			return cliCtx.PrintOutput(out)
+			/*
+				var out cardservice.QueryResCards
+				cdc.MustUnmarshalJSON(res, &out)
+				return cliCtx.PrintOutput(out)
 			*/
 		},
 	}

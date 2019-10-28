@@ -1,8 +1,8 @@
 package cardservice
 
 import (
-	//"fmt"
 	"encoding/binary"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -169,14 +169,39 @@ func (k Keeper) SetUserName(ctx sdk.Context, address sdk.AccAddress, name string
 	store.Set(address, k.cdc.MustMarshalBinaryBare(gottenUser))
 }
 
-func (k Keeper) InitUser(ctx sdk.Context, address sdk.AccAddress, alias string) {
+func (k Keeper) InitUser(ctx sdk.Context, address sdk.AccAddress) {
 	store := ctx.KVStore(k.usersStoreKey)
 
 	newUser := NewUser()
-	newUser.Alias = alias
+	newUser.Alias = "newUser"
 	k.coinKeeper.AddCoins(ctx, address, sdk.Coins{sdk.NewInt64Coin("credits", 1000)})
 
 	store.Set(address, k.cdc.MustMarshalBinaryBare(newUser))
+}
+
+func (k Keeper) saveUser(ctx sdk.Context, user sdk.AccAddress, alias string) User {
+
+	k.SetUserName(ctx, user, alias)
+
+	return k.GetUser(ctx, user)
+}
+
+func (k Keeper) RegisterUser(ctx sdk.Context, newUser sdk.AccAddress) User {
+	// check if user already exists
+	store := ctx.KVStore(k.usersStoreKey)
+	bz := store.Get(newUser)
+
+	if bz == nil {
+		fmt.Println("creating")
+		k.InitUser(ctx, newUser)
+	} else {
+		fmt.Println(string(bz))
+	}
+	//if k.GetUser(ctx, newUser).Alias == "" {
+
+	//}
+
+	return k.GetUser(ctx, newUser)
 }
 
 func (k Keeper) AddOwnedCard(ctx sdk.Context, cardId uint64, address sdk.AccAddress) {
@@ -238,15 +263,4 @@ func (k Keeper) ResetAllVotes(ctx sdk.Context) {
 func (k Keeper) GetCardsIterator(ctx sdk.Context) sdk.Iterator {
 	store := ctx.KVStore(k.cardsStoreKey)
 	return sdk.KVStorePrefixIterator(store, nil)
-}
-
-func (k Keeper) CreateUser(ctx sdk.Context, newUser sdk.AccAddress, alias string) sdk.Iterator {
-	// check if user already exists
-	if k.GetUser(ctx, newUser).Alias == "" {
-		k.InitUser(ctx, NewUser, alias)
-	} else {
-		k.SetUserName(ctx, newUser, alias)
-	}
-
-	return k.GetUser(ctx, newUser)
 }

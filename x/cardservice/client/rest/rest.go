@@ -27,11 +27,12 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec, 
 	r.HandleFunc(fmt.Sprintf("/%s/vote_card", storeName), voteCardHandler(cdc, cliCtx)).Methods(http.MethodPut)
 	r.HandleFunc(fmt.Sprintf("/%s/transfer_card", storeName), transferCardHandler(cdc, cliCtx)).Methods(http.MethodPost)
 	r.HandleFunc(fmt.Sprintf("/%s/donate_to_card", storeName), donateToCardHandler(cdc, cliCtx)).Methods(http.MethodPost)
-	r.HandleFunc(fmt.Sprintf("/%s/create_user", storeName), createUserHandler(cdc, cliCtx)).Methods(http.MethodPut)
+	r.HandleFunc(fmt.Sprintf("/%s/save_user", storeName), saveUserHandler(cdc, cliCtx)).Methods(http.MethodPut)
 
 	r.HandleFunc(fmt.Sprintf("/%s/cards/{%s}", storeName, restName), resolveCardHandler(cdc, cliCtx, storeName)).Methods(http.MethodGet)
 	r.HandleFunc(fmt.Sprintf("/%s/cards", storeName), resolveCardsHandler(cdc, cliCtx, storeName)).Methods(http.MethodGet)
 	r.HandleFunc(fmt.Sprintf("/%s/whois/{%s}", storeName, restName), whoIsHandler(cdc, cliCtx, storeName)).Methods(http.MethodGet)
+	r.HandleFunc(fmt.Sprintf("/%s/register_user/{%s}", storeName, restName), registerUserHandler(cdc, cliCtx, storeName)).Methods(http.MethodGet)
 	r.HandleFunc(fmt.Sprintf("/%s/votable_cards/{%s}", storeName, restName), resolveVotableCardsHandler(cdc, cliCtx, storeName)).Methods(http.MethodGet)
 }
 
@@ -279,16 +280,15 @@ func donateToCardHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Handl
 	}
 }
 
-type createUserReq struct {
+type saveUserReq struct {
 	BaseReq rest.BaseReq `json:"base_req"`
-	NewUser string       `json:"new_user"`
-	Creator string       `json:"creator"`
+	User    string       `json:"new_user"`
 	Alias   string       `json:"alias"`
 }
 
-func createUserHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func saveUserHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req createUserReq
+		var req saveUserReq
 
 		if !rest.ReadRESTReq(w, r, cdc, &req) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
@@ -300,20 +300,14 @@ func createUserHandler(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 			return
 		}
 
-		creator, err := sdk.AccAddressFromBech32(req.Creator)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		newUser, err := sdk.AccAddressFromBech32(req.NewUser)
+		user, err := sdk.AccAddressFromBech32(req.User)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
 		// create the message
-		msg := cardservice.NewMsgCreateUser(creator, newUser, req.Alias)
+		msg := cardservice.NewMsgSaveUser(user, req.Alias)
 		err = msg.ValidateBasic()
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -379,6 +373,21 @@ func whoIsHandler(cdc *codec.Codec, cliCtx context.CLIContext, userAddress strin
 		paramType := vars[restName]
 
 		res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/whois/%s", userAddress, paramType), nil)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
+			return
+		}
+
+		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
+	}
+}
+
+func registerUserHandler(cdc *codec.Codec, cliCtx context.CLIContext, userAddress string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		paramType := vars[restName]
+
+		res, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/registerUser/%s", userAddress, paramType), nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return

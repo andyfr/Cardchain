@@ -3,7 +3,6 @@ package cardservice
 import (
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -18,6 +17,7 @@ const (
 	QueryResolve      = "resolve"
 	QueryWhois        = "whois"
 	QueryNames        = "cards"
+	QueryRegisterUser = "register-user"
 	QueryVotableCards = "votable-cards"
 )
 
@@ -99,7 +99,7 @@ func queryRegisterUser(ctx sdk.Context, path []string, req abci.RequestQuery, ke
 		return nil, sdk.ErrUnknownRequest("could not parse user address")
 	}
 
-	user := keeper.CreateUser(ctx, address)
+	user := keeper.RegisterUser(ctx, address)
 
 	bz, err2 := codec.MarshalJSONIndent(keeper.cdc, user)
 	if err2 != nil {
@@ -109,12 +109,14 @@ func queryRegisterUser(ctx sdk.Context, path []string, req abci.RequestQuery, ke
 	return bz, nil
 }
 
+/*
 // implement fmt.Stringer
 func (w Whois) String() string {
 	return strings.TrimSpace(fmt.Sprintf(`Owner: %s
 Value: %s
 Price: %s`, w.Owner, w.Value, w.Price))
 }
+*/
 
 func queryCards(ctx sdk.Context, req abci.RequestQuery, keeper Keeper) (res []byte, err sdk.Error) {
 	var cardsList QueryResCards

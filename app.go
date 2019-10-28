@@ -183,7 +183,8 @@ func (app *cardserviceApp) initChainer(ctx sdk.Context, req abci.RequestInitChai
 		acc.AccountNumber = app.accountKeeper.GetNextAccountNumber(ctx)
 		app.accountKeeper.SetAccount(ctx, acc)
 
-		app.csKeeper.InitUser(ctx, acc.GetAddress(), "genesis#"+strconv.Itoa(id))
+		app.csKeeper.InitUser(ctx, acc.GetAddress())
+		app.csKeeper.SetUserName(ctx, acc.GetAddress(), "genesis#"+strconv.Itoa(id))
 	}
 
 	auth.InitGenesis(ctx, app.accountKeeper, app.feeCollectionKeeper, genesisState.AuthData)

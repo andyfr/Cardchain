@@ -1,8 +1,8 @@
 package client
 
 import (
-	"github.com/cosmos/cosmos-sdk/client"
 	cardservicecmd "github.com/DecentralCardGame/Cardchain/x/cardservice/client/cli"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
 	amino "github.com/tendermint/go-amino"
 )
@@ -29,6 +29,7 @@ func (mc ModuleClient) GetQueryCmd() *cobra.Command {
 		cardservicecmd.GetCmdCard(mc.storeKey, mc.cdc),
 		cardservicecmd.GetCmdWhois(mc.storeKey, mc.cdc),
 		cardservicecmd.GetCmdCardList(mc.storeKey, mc.cdc),
+		cardservicecmd.GetCmdRegisterUser(mc.storeKey, mc.cdc),
 		cardservicecmd.GetCmdVotableCardList(mc.storeKey, mc.cdc),
 	)...)
 
@@ -48,7 +49,7 @@ func (mc ModuleClient) GetTxCmd() *cobra.Command {
 		cardservicecmd.GetCmdVoteCard(mc.cdc),
 		cardservicecmd.GetCmdTransferCard(mc.cdc),
 		cardservicecmd.GetCmdDonateToCard(mc.cdc),
-		cardservicecmd.GetCmdCreateUser(mc.cdc),
+		cardservicecmd.GetCmdSaveUser(mc.cdc),
 	)...)
 
 	return cardserviceTxCmd

@@ -1,8 +1,8 @@
 package cardservice
 
 import (
-	"strconv"
 	"encoding/json"
+	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -13,15 +13,15 @@ import (
 
 // MsgBuyName defines the BuyName message
 type MsgBuyCardScheme struct {
-	Bid    sdk.Coin
-	Buyer  sdk.AccAddress
+	Bid   sdk.Coin
+	Buyer sdk.AccAddress
 }
 
 // NewMsgBuyName is the constructor function for MsgBuyName
 func NewMsgBuyCardScheme(bid sdk.Coin, buyer sdk.AccAddress) MsgBuyCardScheme {
 	return MsgBuyCardScheme{
-		Bid:    bid,
-		Buyer:  buyer,
+		Bid:   bid,
+		Buyer: buyer,
 	}
 }
 
@@ -62,17 +62,17 @@ func (msg MsgBuyCardScheme) GetSigners() []sdk.AccAddress {
 
 // MsgBuyName defines the BuyName message
 type MsgSaveCardContent struct {
-	CardId	uint64
+	CardId  uint64
 	Content []byte
-	Owner		sdk.AccAddress
+	Owner   sdk.AccAddress
 }
 
 // NewMsgBuyName is the constructor function for MsgBuyName
 func NewMsgSaveCardContent(cardId uint64, content []byte, owner sdk.AccAddress) MsgSaveCardContent {
 	return MsgSaveCardContent{
-		CardId: 	cardId,
-		Content:	content,
-		Owner: 		owner,
+		CardId:  cardId,
+		Content: content,
+		Owner:   owner,
 	}
 }
 
@@ -113,17 +113,17 @@ func (msg MsgSaveCardContent) GetSigners() []sdk.AccAddress {
 
 // MsgVoteCard defines a VoteCard message
 type MsgVoteCard struct {
-	CardId 		uint64
-	VoteType	string
-	Voter  		sdk.AccAddress
+	CardId   uint64
+	VoteType string
+	Voter    sdk.AccAddress
 }
 
 // NewMsgVoteCard is a constructor function for MsgVoteCard
 func NewMsgVoteCard(cardId uint64, voteType string, voter sdk.AccAddress) MsgVoteCard {
 	return MsgVoteCard{
-		CardId:		cardId,
-		VoteType:	voteType,
-		Voter:		voter,
+		CardId:   cardId,
+		VoteType: voteType,
+		Voter:    voter,
 	}
 }
 
@@ -140,10 +140,10 @@ func (msg MsgVoteCard) ValidateBasic() sdk.Error {
 	}
 	// the check of CardID < 0 might be pointless.. should be validated in the rest api or cscli
 	if msg.CardId < 0 {
-		return sdk.ErrUnknownRequest("CardId is: "+strconv.FormatUint(msg.CardId, 10)+" - should be non-negative")
+		return sdk.ErrUnknownRequest("CardId is: " + strconv.FormatUint(msg.CardId, 10) + " - should be non-negative")
 	}
 	if len(msg.VoteType) == 0 {
-		return sdk.ErrUnknownRequest("Vote Type is: "+msg.VoteType+" - cannot be empty")
+		return sdk.ErrUnknownRequest("Vote Type is: " + msg.VoteType + " - cannot be empty")
 	}
 
 	return nil
@@ -169,17 +169,17 @@ func (msg MsgVoteCard) GetSigners() []sdk.AccAddress {
 
 // MsgTransferCard defines a TransferCard message
 type MsgTransferCard struct {
-	CardId 		uint64
-	Sender 		sdk.AccAddress
-	Receiver	sdk.AccAddress
+	CardId   uint64
+	Sender   sdk.AccAddress
+	Receiver sdk.AccAddress
 }
 
 // NewMsgTransferCard is a constructor function for MsgTransferCard
 func NewMsgTransferCard(cardId uint64, sender sdk.AccAddress, receiver sdk.AccAddress) MsgTransferCard {
 	return MsgTransferCard{
-		CardId:		cardId,
-		Sender:		sender,
-		Receiver:	receiver,
+		CardId:   cardId,
+		Sender:   sender,
+		Receiver: receiver,
 	}
 }
 
@@ -224,17 +224,17 @@ func (msg MsgTransferCard) GetSigners() []sdk.AccAddress {
 
 // MsgDonateToCard defines a TransferCard message
 type MsgDonateToCard struct {
-	CardId 		uint64
-	Donator 	sdk.AccAddress
-	Amount		sdk.Coin
+	CardId  uint64
+	Donator sdk.AccAddress
+	Amount  sdk.Coin
 }
 
 // NewMsgMsgDonateToCard is a constructor function for MsgDonateToCard
 func NewMsgDonateToCard(cardId uint64, donator sdk.AccAddress, amount sdk.Coin) MsgDonateToCard {
 	return MsgDonateToCard{
-		CardId:		cardId,
-		Donator:	donator,
-		Amount:		amount,
+		CardId:  cardId,
+		Donator: donator,
+		Amount:  amount,
 	}
 }
 
@@ -271,41 +271,39 @@ func (msg MsgDonateToCard) GetSigners() []sdk.AccAddress {
 }
 
 /////////////////
-// Create User //
+// Save User //
 /////////////////
 
-// MsgCreateUser defines a CreateUser message
-type MsgCreateUser struct {
-	NewUser 	sdk.AccAddress
-	Creator 	sdk.AccAddress
-	Alias			string
+// MsgSaveUser defines a SaveUser message
+type MsgSaveUser struct {
+	User  sdk.AccAddress
+	Alias string
 }
 
-// NewMsgCreateUser is a constructor function for MsgCreateUser
-func NewMsgCreateUser(creator sdk.AccAddress, newUser sdk.AccAddress, alias string) MsgCreateUser {
-	return MsgCreateUser{
-		NewUser:	newUser,
-		Creator: creator,
+// NewMsgSaveUser is a constructor function for MsgSaveUser
+func NewMsgSaveUser(user sdk.AccAddress, alias string) MsgSaveUser {
+	return MsgSaveUser{
+		User:  user,
 		Alias: alias,
 	}
 }
 
 // Name Implements Msg.
-func (msg MsgCreateUser) Route() string { return "cardservice" }
+func (msg MsgSaveUser) Route() string { return "cardservice" }
 
 // Type Implements Msg.
-func (msg MsgCreateUser) Type() string { return "create_user" }
+func (msg MsgSaveUser) Type() string { return "save_user" }
 
 // ValdateBasic Implements Msg.
-func (msg MsgCreateUser) ValidateBasic() sdk.Error {
-	if msg.NewUser.Empty() {
-		return sdk.ErrInvalidAddress(msg.NewUser.String())
+func (msg MsgSaveUser) ValidateBasic() sdk.Error {
+	if msg.User.Empty() {
+		return sdk.ErrInvalidAddress(msg.User.String())
 	}
 	return nil
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgCreateUser) GetSignBytes() []byte {
+func (msg MsgSaveUser) GetSignBytes() []byte {
 	b, err := json.Marshal(msg)
 	if err != nil {
 		panic(err)
@@ -314,6 +312,6 @@ func (msg MsgCreateUser) GetSignBytes() []byte {
 }
 
 // GetSigners Implements Msg.
-func (msg MsgCreateUser) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Creator}
+func (msg MsgSaveUser) GetSigners() []sdk.AccAddress {
+	return []sdk.AccAddress{msg.User}
 }

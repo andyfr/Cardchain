@@ -6,15 +6,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
+	"github.com/DecentralCardGame/Cardchain/x/cardservice"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/DecentralCardGame/Cardchain/x/cardservice"
+	"github.com/spf13/cobra"
 
+	"github.com/DecentralCardGame/cardobject"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
-	"github.com/DecentralCardGame/cardobject"
 )
 
 // GetCmdBuyCardScheme is the CLI command for sending a BuyCardScheme transaction
@@ -73,7 +73,7 @@ func GetCmdSaveCardContent(cdc *codec.Codec) *cobra.Command {
 				return errors.New("Card content string and card content object don't match. This means ProcessCard() removed or could not parse parts of the card content.")
 			}
 
-			cardId, err := strconv.ParseUint(args[0], 10, 64);
+			cardId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -106,7 +106,7 @@ func GetCmdVoteCard(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			cardId, err := strconv.ParseUint(args[0], 10, 64);
+			cardId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -139,7 +139,7 @@ func GetCmdTransferCard(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			cardId, err := strconv.ParseUint(args[0], 10, 64);
+			cardId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -177,7 +177,7 @@ func GetCmdDonateToCard(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			cardId, err := strconv.ParseUint(args[0], 10, 64);
+			cardId, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -200,11 +200,11 @@ func GetCmdDonateToCard(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-// GetCmdCreateUser is the CLI command for voting for a card
-func GetCmdCreateUser(cdc *codec.Codec) *cobra.Command {
+// GetCmdSaveUser is the CLI command for setting user infos
+func GetCmdSaveUser(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "create-user [Addresss] [alias]",
-		Short: "create a user, this means giving starting credits and starting cards",
+		Use:   "save-user [Addresss] [alias]",
+		Short: "saves your user information",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
@@ -214,14 +214,14 @@ func GetCmdCreateUser(cdc *codec.Codec) *cobra.Command {
 			if err := cliCtx.EnsureAccountExists(); err != nil {
 				return err
 			}
-
-			newUser, err := sdk.AccAddressFromBech32(args[0])
-			if err != nil {
-				return err
-			}
-
-			msg := cardservice.NewMsgCreateUser(cliCtx.GetFromAddress(), newUser, args[1])
-			err = msg.ValidateBasic()
+			/*
+				newUser, err := sdk.AccAddressFromBech32(args[0])
+				if err != nil {
+					return err
+				}
+			*/
+			msg := cardservice.NewMsgSaveUser(cliCtx.GetFromAddress(), args[1])
+			err := msg.ValidateBasic()
 			if err != nil {
 				return err
 			}
