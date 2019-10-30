@@ -200,11 +200,11 @@ func (k Keeper) RegisterUser(ctx sdk.Context, newUser sdk.AccAddress) User {
 
 		//acc := auth.NewBaseAccountWithAddress(newUser)
 
-		//acc := k.accountKeeper.NewAccountWithAddress(ctx, newUser)
+		acc := k.accountKeeper.NewAccountWithAddress(ctx, newUser)
 
-		//acc.SetCoins(acc.GetCoins())
-		//fmt.Println(acc)
-		//k.accountKeeper.SetAccount(ctx, acc)
+		acc.SetCoins(acc.GetCoins())
+		fmt.Println(acc)
+		k.accountKeeper.SetAccount(ctx, acc)
 
 	} else {
 		fmt.Println(string(bz))
